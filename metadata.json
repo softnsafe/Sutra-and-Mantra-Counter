@@ -1,0 +1,6 @@
+{
+  "name": "Buddhist Sutras & Mantra Counter",
+  "description": "A single-page application to recite Buddhist sutras and keep track of recitations with built-in tally counters, modeled after chi.xinlingfamen.info.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
