@@ -12,7 +12,7 @@ export function Home({ counters, onNavigate, onResetAll }: HomeProps) {
   return (
     <div className="min-h-screen bg-[#F3EFE3] pb-12">
       <header className="sticky top-0 z-10 flex items-center justify-between bg-[#E8DEC7] px-4 py-4 text-[#6a1515] border-b border-[#DCD1BA] shadow-sm">
-        <h1 className="text-xl font-bold tracking-wider font-serif">佛教经文</h1>
+        <h1 className="text-xl font-bold tracking-wider font-serif">佛教經文</h1>
         <button
           onClick={onResetAll}
           className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FAF6EC] hover:bg-white text-[#6a1515] transition-colors border border-[#DCD1BA] shadow-sm"

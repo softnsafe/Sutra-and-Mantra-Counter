@@ -112,7 +112,7 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
           <Music className="w-12 h-12 text-[#9A8462]" />
         </div>
         
-        <h2 className="text-2xl font-serif font-bold text-[#6a1515] mb-8">{customTitle || title} Chant</h2>
+        <h2 className="text-2xl font-serif font-bold text-[#6a1515] mb-8">{customTitle || title}</h2>
         
         {/* Progress Bar */}
         <div className="w-full mb-8">
@@ -155,17 +155,20 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
       <div className="flex gap-4 mb-4">
         {/* Speed */}
         <div className="bg-[#FAF6EC] rounded-2xl p-4 shadow-sm border border-[#E8DEC7] flex-1">
-          <h3 className="text-sm text-[#5c4a3d] font-medium mb-3">Speed</h3>
-          <div className="flex justify-between">
-            {[1.0, 1.2, 1.5, 2.0].map(s => (
-              <button
-                key={s}
-                onClick={() => handleSpeedChange(s)}
-                className={`text-sm px-2 py-1 rounded transition-colors ${speed === s ? 'bg-white shadow-sm font-bold text-[#6a1515]' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
-              >
-                {s.toFixed(1)}x
-              </button>
-            ))}
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm text-[#5c4a3d] font-medium">Speed</h3>
+          </div>
+          <div className="w-full bg-white rounded-xl shadow-sm border border-[#E8DEC7]">
+            <select
+              value={speed}
+              onChange={(e) => handleSpeedChange(Number(e.target.value))}
+              className="w-full bg-transparent outline-none appearance-none text-center px-3 py-2 font-bold text-[#1a1a1a] font-serif text-base cursor-pointer"
+            >
+              <option value={1.0}>1.0x</option>
+              <option value={1.2}>1.2x</option>
+              <option value={1.5}>1.5x</option>
+              <option value={2.0}>2.0x</option>
+            </select>
           </div>
         </div>
         
@@ -173,15 +176,17 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
         <div className="bg-[#FAF6EC] rounded-2xl p-4 shadow-sm border border-[#E8DEC7] flex-1">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-sm text-[#5c4a3d] font-medium">Loop Count</h3>
+            <span className="font-bold text-[#1a1a1a] font-serif text-sm">
+              {loopCount}/{loopLimit}
+            </span>
+          </div>
+          <div className="w-full bg-white rounded-xl shadow-sm border border-[#E8DEC7]">
             <input 
               type="number" 
               value={loopLimit}
               onChange={(e) => setLoopLimit(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-16 bg-transparent outline-none text-right font-bold text-[#1a1a1a] font-serif text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="w-full bg-transparent outline-none text-center px-3 py-2 font-bold text-[#1a1a1a] font-serif text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
-          </div>
-          <div className="w-full bg-white rounded-xl px-3 py-2 flex justify-center items-center shadow-sm text-sm border border-[#E8DEC7] font-bold text-[#1a1a1a] font-serif">
-            {loopCount}/{loopLimit}
           </div>
         </div>
       </div>

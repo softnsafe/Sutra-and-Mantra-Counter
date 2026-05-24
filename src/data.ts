@@ -1,12 +1,12 @@
 export const SUTRAS = [
   { 
     id: 'sutra1', 
-    title: '净口业真言',
+    title: '淨口業真言',
     images: ["https://chi.xinlingfamen.info/subpages/Purify.jpg"]
   },
   { 
     id: 'sutra2', 
-    title: '千手千眼无碍大悲心陀罗尼（大悲咒）',
+    title: '千手千眼無礙大悲心陀羅尼（大悲咒）',
     images: [
       "https://chi.xinlingfamen.info/subpages/Great_Compassion_Mantra_01.jpg",
       "https://chi.xinlingfamen.info/subpages/Great_Compassion_Mantra_02.jpg",
@@ -16,7 +16,7 @@ export const SUTRAS = [
   },
   { 
     id: 'sutra3', 
-    title: '般若波罗蜜多心经',
+    title: '般若波羅蜜多心經',
     images: [
       "https://chi.xinlingfamen.info/subpages/Heart_Sutra_01.jpg",
       "https://chi.xinlingfamen.info/subpages/Heart_Sutra_02.jpg",
@@ -25,17 +25,17 @@ export const SUTRAS = [
   },
   { 
     id: 'sutra4', 
-    title: '准提神咒',
+    title: '準提神咒',
     images: ["https://chi.xinlingfamen.info/subpages/chuntishenzhou.jpg"]
   },
   { 
     id: 'sutra5', 
-    title: '消灾吉祥神咒',
+    title: '消災吉祥神咒',
     images: ["https://chi.xinlingfamen.info/subpages/xiaozai.jpg"]
   },
   { 
     id: 'sutra6', 
-    title: '礼佛大忏悔文',
+    title: '禮佛大懺悔文',
     images: [
       "https://chi.xinlingfamen.info/subpages/Eighty_eight_Buddhas_Great_Repentance_01.jpg",
       "https://chi.xinlingfamen.info/subpages/Eighty_eight_Buddhas_Great_Repentance_02.jpg",
@@ -60,15 +60,15 @@ export const SUTRAS = [
       "https://chi.xinlingfamen.info/subpages/Eighty_eight_Buddhas_Great_Repentance_21.jpg"
     ]
   },
-  { id: 'sutra7', title: '往生净土神咒', images: ["https://chi.xinlingfamen.info/subpages/wangsheng.jpg"] },
-  { id: 'sutra8', title: '解结咒', images: ["https://chi.xinlingfamen.info/subpages/jiejiecou.jpg"] },
-  { id: 'sutra9', title: '七佛灭罪真言', images: ["https://chi.xinlingfamen.info/subpages/qifo.jpg"] },
-  { id: 'sutra10', title: '补阙真言', images: ["https://chi.xinlingfamen.info/subpages/patch.jpg"] },
-  { id: 'sutra11', title: '如意宝轮王陀罗尼', images: ["https://chi.xinlingfamen.info/subpages/ruyi.jpg"] },
-  { id: 'sutra12', title: '功德宝山神咒', images: ["https://chi.xinlingfamen.info/subpages/gongde.jpg"] },
-  { id: 'sutra13', title: '圣无量寿决定光明王陀罗尼', images: ["https://chi.xinlingfamen.info/subpages/shengwu.jpg"] },
-  { id: 'sutra14', title: '药师灌顶真言', images: ["https://chi.xinlingfamen.info/subpages/yaoshi.jpg"] },
-  { id: 'sutra15', title: '观音灵感真言', images: ["https://chi.xinlingfamen.info/subpages/kuanyin.jpg"] },
+  { id: 'sutra7', title: '往生淨土神咒', images: ["https://chi.xinlingfamen.info/subpages/wangsheng.jpg"] },
+  { id: 'sutra8', title: '解結咒', images: ["https://chi.xinlingfamen.info/subpages/jiejiecou.jpg"] },
+  { id: 'sutra9', title: '七佛滅罪真言', images: ["https://chi.xinlingfamen.info/subpages/qifo.jpg"] },
+  { id: 'sutra10', title: '補闕真言', images: ["https://chi.xinlingfamen.info/subpages/patch.jpg"] },
+  { id: 'sutra11', title: '如意寶輪王陀羅尼', images: ["https://chi.xinlingfamen.info/subpages/ruyi.jpg"] },
+  { id: 'sutra12', title: '功德寶山神咒', images: ["https://chi.xinlingfamen.info/subpages/gongde.jpg"] },
+  { id: 'sutra13', title: '聖無量壽決定光明王陀羅尼', images: ["https://chi.xinlingfamen.info/subpages/shengwu.jpg"] },
+  { id: 'sutra14', title: '藥師灌頂真言', images: ["https://chi.xinlingfamen.info/subpages/yaoshi.jpg"] },
+  { id: 'sutra15', title: '觀音靈感真言', images: ["https://chi.xinlingfamen.info/subpages/kuanyin.jpg"] },
   { id: 'sutra16', title: '大吉祥天女咒', images: ["https://chi.xinlingfamen.info/subpages/daji_01.jpg", "https://chi.xinlingfamen.info/subpages/daji_02.jpg"] },
   { id: 'sutra17', title: '六字真言', images: ["https://chi.xinlingfamen.info/subpages/liuzi.jpg"] }
 ];

@@ -1,7 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Minus, RotateCw, ChevronDown, Play, Pause } from 'lucide-react';
+import { ArrowLeft, Minus, RotateCw, ChevronDown, Play, Pause, X, Trash2 } from 'lucide-react';
 import { SUTRAS } from './data';
 import { AudioPlayer } from './AudioPlayer';
+
+interface SavedRecord {
+  date: string;
+  type: '功課' | 'XFZ';
+  sutra: string;
+  count: number;
+}
+
+const GONGKE_OPTIONS = ["大悲咒", "心經", "往生咒", "七佛", "功德寶山神咒", "禮佛", "楞嚴咒"];
+const XFZ_OPTIONS = ["大悲咒", "心經", "往生咒", "七佛"];
 
 interface SutraViewProps {
   id: string;
@@ -16,6 +26,11 @@ interface SutraViewProps {
 
 export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetParam, onBack, onChangeSutra }: SutraViewProps) {
   const [tab, setTab] = useState<'text' | 'audio'>('text');
+  const [recordModalType, setRecordModalType] = useState<'功課' | 'XFZ' | null>(null);
+  const [recordDate, setRecordDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [recordSutra, setRecordSutra] = useState(id);
+  const [recordCount, setRecordCount] = useState(count > 0 ? count : 1);
+  const [savedRecords, setSavedRecords] = useState<SavedRecord[]>([]);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState<number>(1.5);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -78,6 +93,33 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
   // Find currently selected sutra
   const sutra = SUTRAS.find(s => s.id === id);
 
+  const handleOpenRecordModal = (type: '功課' | 'XFZ') => {
+    setRecordDate(new Date().toISOString().split('T')[0]);
+    const options = type === '功課' ? GONGKE_OPTIONS : XFZ_OPTIONS;
+    const currentTitle = sutra?.title || "";
+    setRecordSutra(options.includes(currentTitle) ? currentTitle : options[0]);
+    setRecordCount(count > 0 ? count : 1);
+    setRecordModalType(type);
+  };
+
+  const handleSaveRecord = () => {
+    if (!recordModalType) return;
+    setSavedRecords(prev => {
+      const existingRecordIndex = prev.findIndex(r => r.date === recordDate && r.type === recordModalType && r.sutra === recordSutra);
+      if (existingRecordIndex >= 0) {
+        const newRecords = [...prev];
+        newRecords[existingRecordIndex] = { ...newRecords[existingRecordIndex], count: newRecords[existingRecordIndex].count + recordCount };
+        return newRecords;
+      }
+      return [...prev, { date: recordDate, type: recordModalType, sutra: recordSutra, count: recordCount }];
+    });
+    // Do not close modal automatically so user can see the records at the bottom
+  };
+
+  const handleDeleteRecord = (date: string, type: '功課' | 'XFZ', sutra: string) => {
+    setSavedRecords(prev => prev.filter(r => !(r.date === date && r.type === type && r.sutra === sutra)));
+  };
+
   if (!sutra) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center p-4">
@@ -91,31 +133,50 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
     <div className="flex min-h-screen flex-col bg-[#F3EFE3] overflow-x-hidden">
       
       {/* Top Tab Bar containing back button and tabs */}
-      <div className="sticky top-0 z-10 w-full flex items-center bg-[#E8DEC7] p-2 sm:p-3 border-b border-[#DCD1BA] shadow-sm">
-        <button
-          onClick={onBack}
-          className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full text-[#6a1515] hover:bg-[#F3EFE3] transition-colors"
-        >
-          <ArrowLeft className="h-6 w-6" />
-        </button>
-        
-        <div className="flex-1 flex justify-center">
-          <div className="flex bg-[#E8DEC7] border border-[#DCD1BA] rounded-xl p-1 shadow-inner h-12 w-full max-w-sm">
+      <div className="sticky top-0 z-10 w-full flex flex-col items-center bg-[#E8DEC7] p-2 sm:p-3 border-b border-[#DCD1BA] shadow-sm">
+        <div className="w-full flex items-center justify-between">
+          <button
+            onClick={onBack}
+            className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full text-[#6a1515] hover:bg-[#F3EFE3] transition-colors"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </button>
+          
+          <div className="flex-1 flex justify-center px-2">
+            <div className="flex bg-[#E8DEC7] border border-[#DCD1BA] rounded-xl p-1 shadow-inner h-12 w-full max-w-sm">
+              <button
+                onClick={() => setTab('text')}
+                className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'text' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
+              >
+                經文
+              </button>
+              <button
+                onClick={() => setTab('audio')}
+                className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'audio' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
+              >
+                Audio Mode
+              </button>
+            </div>
+          </div>
+          <div className="w-10 flex-shrink-0" />
+        </div>
+
+        <div className="w-full flex justify-center mt-3 mb-1">
+          <div className="flex gap-4">
             <button
-              onClick={() => setTab('text')}
-              className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'text' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
+              onClick={() => handleOpenRecordModal('功課')}
+              className="px-5 py-1.5 rounded-full text-sm font-bold shadow-sm transition-colors border bg-[#FAF6EC] text-[#8A1A1A] border-[#dccfb4] hover:bg-white"
             >
-              经文
+              功課
             </button>
             <button
-              onClick={() => setTab('audio')}
-              className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'audio' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
+              onClick={() => handleOpenRecordModal('XFZ')}
+              className="px-5 py-1.5 rounded-full text-sm font-bold shadow-sm transition-colors border bg-[#FAF6EC] text-[#8A1A1A] border-[#dccfb4] hover:bg-white"
             >
-              Audio Mode
+              XFZ
             </button>
           </div>
         </div>
-        <div className="w-10 flex-shrink-0" />
       </div>
 
       <div className="flex-1 flex flex-col max-w-lg mx-auto w-full px-4 pt-4 pb-32">
@@ -249,7 +310,105 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
         {tab === 'audio' && (
           <AudioPlayer title={sutra.title} />
         )}
+
+        {/* Saved Records Section removed from here */}
       </div>
+
+      {/* Record Modal */}
+      {recordModalType && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="bg-[#F8F4E6] w-full max-w-[340px] max-h-[90vh] overflow-y-auto rounded-[24px] p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            
+            <button 
+              onClick={() => setRecordModalType(null)}
+              className="absolute right-5 top-5 text-[#4a3f35] hover:text-black transition-colors"
+            >
+              <X className="h-6 w-6" strokeWidth={1.5} />
+            </button>
+            
+            <h2 className="text-2xl font-bold text-[#5c1313] mb-6">記錄{recordModalType}</h2>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-[#7a6659] mb-1.5">日期</label>
+                <div className="relative">
+                  <input 
+                    type="date" 
+                    value={recordDate}
+                    onChange={(e) => setRecordDate(e.target.value)}
+                    className="w-full bg-transparent border border-[#dcb5b5] rounded-xl px-4 py-3 text-[#4a3f35] font-medium outline-none focus:border-[#8A1A1A] focus:ring-1 focus:ring-[#8A1A1A] block appearance-none transition-colors"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-[#7a6659] mb-1.5">經文名稱</label>
+                <div className="relative">
+                  <select 
+                    value={recordSutra}
+                    onChange={(e) => setRecordSutra(e.target.value)}
+                    className="w-full bg-transparent border border-[#dcb5b5] rounded-xl px-4 py-3 text-[#4a3f35] font-medium outline-none focus:border-[#8A1A1A] focus:ring-1 focus:ring-[#8A1A1A] appearance-none transition-colors"
+                  >
+                    {(recordModalType === '功課' ? GONGKE_OPTIONS : XFZ_OPTIONS).map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#7a6659] pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                 <label className="block text-sm text-[#7a6659] mb-1.5">遍數</label>
+                 <input 
+                    type="number" 
+                    min="1"
+                    value={recordCount || ''}
+                    onChange={(e) => setRecordCount(parseInt(e.target.value) || 0)}
+                    className="w-full bg-transparent border border-[#dcb5b5] rounded-xl px-4 py-3 text-[#4a3f35] font-medium outline-none focus:border-[#8A1A1A] focus:ring-1 focus:ring-[#8A1A1A] transition-colors"
+                  />
+              </div>
+            </div>
+
+            <button 
+              onClick={handleSaveRecord}
+              className="w-full bg-[#5D100F] text-white text-[15px] font-bold py-3.5 rounded-full mt-8 hover:bg-[#4a0808] transition-colors shadow-lg active:scale-[0.98]"
+            >
+              保存記錄
+            </button>
+
+            {/* Display relevant saved records here */}
+            {savedRecords.filter(r => r.type === recordModalType).length > 0 && (
+              <div className="mt-8 border-t border-[#E8DEC7] pt-6">
+                <h3 className="text-[15px] font-bold text-[#8c7462] mb-4">{recordModalType}記錄</h3>
+                <div className="space-y-2.5">
+                  {savedRecords.filter(r => r.type === recordModalType).map((r, i) => (
+                    <div key={i} className="flex justify-between items-center bg-[#FAF6EC] rounded-xl p-3 shadow-sm border border-[#E8DEC7]">
+                      <div>
+                        <div className="text-[11px] text-[#8c7462] font-medium mb-0.5">{r.date}</div>
+                        <div className="font-bold text-[#4a3f35] text-sm">{r.sutra}</div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-lg font-black text-[#8A1A1A]">
+                          {r.count}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteRecord(r.date, r.type, r.sutra)}
+                          className="p-1.5 text-[#dcb5b5] hover:text-[#8A1A1A] transition-colors rounded-full hover:bg-[#E8DEC7]"
+                          title="刪除"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

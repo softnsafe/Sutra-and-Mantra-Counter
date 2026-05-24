@@ -38,7 +38,7 @@ export function useCounters() {
   };
 
   const resetAll = () => {
-    if (window.confirm('确定要重置所有计数器吗？ (Are you sure you want to reset all counters?)')) {
+    if (window.confirm('確定要重置所有計數器嗎？ (Are you sure you want to reset all counters?)')) {
       setCounters({});
     }
   };
