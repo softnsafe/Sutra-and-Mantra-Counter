@@ -100,7 +100,7 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
     <div className="w-full flex-1 flex flex-col pt-4">
       <audio
         ref={audioRef}
-        src={audioUrl || ''}
+        src={audioUrl || undefined}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={handleEnded}

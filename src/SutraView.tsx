@@ -256,7 +256,7 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
                     {sutra.images.map((imgSrc, index) => (
                       <img 
                         key={index} 
-                        src={imgSrc} 
+                        src={imgSrc || undefined} 
                         alt={`${sutra.title} page ${index + 1}`} 
                         className="w-full h-auto block filter contrast-[1.15] sepia-[0.3] mix-blend-multiply opacity-90 relative" 
                         style={{ zIndex: sutra.images.length - index }}
