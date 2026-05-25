@@ -1,28 +1,71 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipForward, Upload, Music } from 'lucide-react';
+import { Play, Pause, SkipForward, Upload, Music, Trash2, Plus } from 'lucide-react';
 
 interface AutoModeProps {
   onIncrementCount: (count: number) => void;
 }
 
+const getInitialSequence = () => [
+  { audioIndex: 0, times: 13, speed: 1.5 },
+  { audioIndex: 1, times: 55, speed: 1.5 },
+  { audioIndex: 0, times: 3, speed: 1.5 },
+  { audioIndex: 2, times: 100, speed: 1.5 },
+  { audioIndex: 0, times: 3, speed: 1.5 },
+  { audioIndex: 3, times: 100, speed: 1.5 },
+  { audioIndex: 0, times: 15, speed: 1.5 },
+];
+
 export function AutoMode({ onIncrementCount }: AutoModeProps) {
   const [audios, setAudios] = useState<(string | null)[]>([null, null, null, null]);
-  const [names, setNames] = useState<string[]>(['Audio #1', 'Audio #2', 'Audio #3', 'Audio #4']);
+  const [names, setNames] = useState<string[]>(['大悲咒', '心经', '往生咒', '七佛灭罪真言']);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentLoop, setCurrentLoop] = useState(0);
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const sequence = [
-    { audioIndex: 0, times: 13 },
-    { audioIndex: 1, times: 55 },
-    { audioIndex: 0, times: 3 },
-    { audioIndex: 2, times: 100 },
-    { audioIndex: 0, times: 3 },
-    { audioIndex: 3, times: 100 },
-    { audioIndex: 0, times: 15 },
-  ];
+  const [sequence, setSequence] = useState(getInitialSequence());
+
+  const handleSequenceTimeChange = (index: number, newTimes: number) => {
+    setSequence((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], times: newTimes };
+      return next;
+    });
+  };
+
+  const handleSequenceSpeedChange = (index: number, newSpeed: number) => {
+    setSequence((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], speed: newSpeed };
+      return next;
+    });
+  };
+
+  const handleSequenceAudioChange = (index: number, newAudioIndex: number) => {
+    setSequence((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], audioIndex: newAudioIndex };
+      return next;
+    });
+  };
+
+  const handleAddStep = () => {
+    setSequence((prev) => [...prev, { audioIndex: 0, times: 1, speed: 1.5 }]);
+  };
+
+  const handleDeleteStep = (index: number) => {
+    setSequence((prev) => prev.filter((_, i) => i !== index));
+    if (currentStep >= sequence.length - 1) {
+      setCurrentStep(0);
+      setCurrentLoop(0);
+    }
+  };
+
+  const handleAddAudioSlot = () => {
+    setAudios(prev => [...prev, null]);
+    setNames(prev => [...prev, `自定义音频 ${prev.length + 1}`]);
+  };
 
   const handleFileUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -42,10 +85,10 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
   };
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.playbackRate = 1.5;
+    if (audioRef.current && sequence[currentStep]) {
+      audioRef.current.playbackRate = sequence[currentStep].speed || 1.5;
     }
-  }, [currentStep, isPlaying]);
+  }, [currentStep, isPlaying, sequence]);
 
   const playStep = () => {
     if (currentStep >= sequence.length) {
@@ -118,18 +161,18 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
 
       <h2 className="text-2xl font-serif font-bold text-[#6a1515] mb-4">Auto Mode Sequence</h2>
       <p className="text-sm text-[#8c7462] mb-8 text-center max-w-[280px]">
-        Upload 4 audios to play the predefined sequence automatically (always at 1.5x speed).
+        Upload audios to play the predefined sequence automatically. You can customize the speed for each step.
       </p>
 
       <div className="w-full space-y-3 mb-8">
-        {[0, 1, 2, 3].map(i => (
+        {audios.map((_, i) => (
           <div key={i} className="flex items-center gap-3 bg-[#FAF6EC] p-3 rounded-2xl shadow-sm border border-[#E8DEC7]">
             <div className="w-8 h-8 rounded-full bg-[#E8DEC7] flex items-center justify-center text-[#6a1515] font-bold shrink-0">
               {i + 1}
             </div>
             <div className="flex-1 min-w-0">
               <span className="text-sm font-bold text-[#4a3f35] block truncate">
-                {audios[i] ? names[i] : `Audio #${i + 1} (Not uploaded)`}
+                {audios[i] ? names[i] : `${names[i]} (Not uploaded)`}
               </span>
             </div>
             <label className="shrink-0 cursor-pointer p-2 bg-white rounded-full text-[#8c7462] hover:text-[#5c1313] hover:bg-[#E8DEC7] transition-colors border border-[#DCD1BA]">
@@ -143,6 +186,78 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
             </label>
           </div>
         ))}
+        <button
+          onClick={handleAddAudioSlot}
+          disabled={isPlaying}
+          className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8DEC7] hover:bg-[#DCD1BA] text-[#5c4a3d] font-bold py-2.5 rounded-xl border border-[#DCD1BA] border-dashed transition-colors disabled:opacity-50"
+        >
+          <Plus className="w-4 h-4" /> Add New Audio
+        </button>
+      </div>
+
+      <div className="w-full mb-8">
+        <h3 className="text-lg font-bold text-[#4a3f35] mb-3 px-2">Edit Sequence</h3>
+        <div className="space-y-2">
+          {sequence.map((step, index) => (
+            <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-[#FDFBF2] p-3 rounded-xl border border-[#E8DEC7] shadow-sm gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-sm text-[#5c4a3d] font-bold shrink-0">Step {index + 1}:</span>
+                <select 
+                  value={step.audioIndex}
+                  onChange={(e) => handleSequenceAudioChange(index, parseInt(e.target.value))}
+                  disabled={isPlaying}
+                  className="flex-1 sm:flex-none text-sm bg-white border border-[#DCD1BA] rounded-lg px-2 py-1 text-[#4a3f35] font-bold focus:outline-none focus:border-[#8A1A1A] disabled:opacity-50 min-w-[100px]"
+                >
+                  {names.map((name, i) => (
+                    <option key={i} value={i}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-wrap items-center justify-end sm:justify-between w-full sm:w-auto gap-2">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={step.speed || 1.5}
+                    onChange={(e) => handleSequenceSpeedChange(index, parseFloat(e.target.value))}
+                    disabled={isPlaying}
+                    className="text-sm bg-white border border-[#DCD1BA] rounded-lg px-2 py-1 text-[#4a3f35] font-bold focus:outline-none focus:border-[#8A1A1A] disabled:opacity-50 min-w-[70px]"
+                    title="Playback Speed"
+                  >
+                    {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(speed => (
+                      <option key={speed} value={speed}>{speed}x</option>
+                    ))}
+                  </select>
+                  <input 
+                    type="number" 
+                    min="1"
+                    value={step.times}
+                    onChange={(e) => handleSequenceTimeChange(index, parseInt(e.target.value) || 1)}
+                    disabled={isPlaying}
+                    className="w-16 bg-white border border-[#DCD1BA] rounded-lg p-1 text-center text-sm font-bold text-[#6a1515] focus:outline-none focus:border-[#8A1A1A] transition-colors disabled:opacity-50"
+                    title="Loop Count"
+                  />
+                  <span className="text-xs text-[#8c7462] font-medium pr-1">次</span>
+                </div>
+                <button
+                  onClick={() => handleDeleteStep(index)}
+                  disabled={isPlaying || sequence.length <= 1}
+                  className="p-1.5 text-[#dcb5b5] hover:text-[#8A1A1A] transition-colors rounded-full hover:bg-[#E8DEC7] disabled:opacity-30 disabled:hover:text-[#dcb5b5] disabled:hover:bg-transparent"
+                  title="Delete Step"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <button
+          onClick={handleAddStep}
+          disabled={isPlaying}
+          className="mt-3 w-full flex items-center justify-center gap-2 bg-[#E8DEC7] hover:bg-[#DCD1BA] text-[#5c4a3d] font-bold py-2.5 rounded-xl border border-[#DCD1BA] border-dashed transition-colors disabled:opacity-50"
+        >
+          <Plus className="w-4 h-4" /> Add New Step
+        </button>
       </div>
 
       <div className="bg-[#FAF6EC] rounded-3xl p-6 w-full shadow-md border border-[#E8DEC7] flex flex-col items-center">
@@ -157,7 +272,7 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
           </div>
           <div className="text-sm font-medium text-[#6a1515] mb-3 bg-[#E8DEC7] inline-block px-3 py-1 rounded-full border border-[#DCD1BA]">
             {sequence[currentStep] && (
-              <>Step {currentStep + 1} (Audio #{sequence[currentStep].audioIndex + 1})</>
+              <>Step {currentStep + 1} ({names[sequence[currentStep].audioIndex]})</>
             )}
           </div>
           <div className="text-base text-[#8c7462] mt-1 font-bold">
@@ -183,7 +298,9 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
         ref={audioRef} 
         onEnded={handleEnded}
         onCanPlay={(e) => {
-          (e.target as HTMLAudioElement).playbackRate = 1.5;
+          if (sequence[currentStep]) {
+            (e.target as HTMLAudioElement).playbackRate = sequence[currentStep].speed || 1.5;
+          }
         }}
         className="hidden" 
       />
