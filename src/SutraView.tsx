@@ -31,6 +31,7 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
   const [recordSutra, setRecordSutra] = useState(id);
   const [recordCount, setRecordCount] = useState(count > 0 ? count : 1);
   const [savedRecords, setSavedRecords] = useState<SavedRecord[]>([]);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState<number>(1.5);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -291,11 +292,7 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
                 </button>
 
                 <button
-                  onClick={() => {
-                    if (window.confirm('Reset this counter?')) {
-                      onReset();
-                    }
-                  }}
+                  onClick={() => setShowResetConfirm(true)}
                   className="flex h-14 w-14 items-center justify-center rounded-full bg-[#FAF6EC] text-[#8c7462] hover:text-[#6a1515] hover:bg-white transition-all shadow-md border border-[#E8DEC7] active:scale-95"
                   aria-label="Reset"
                 >
@@ -405,6 +402,39 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
               </div>
             )}
             
+          </div>
+        </div>
+      )}
+
+      {/* Reset Confirmation Modal */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+          <div className="bg-[#F8F4E6] w-full max-w-[320px] rounded-[24px] p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
+            <button 
+              onClick={() => setShowResetConfirm(false)}
+              className="absolute top-4 right-4 p-2 text-[#8c7462] hover:text-[#5c1313] transition-colors rounded-full hover:bg-[#E8DEC7]"
+            >
+              <X className="h-5 w-5" strokeWidth={2} />
+            </button>
+            <h2 className="text-xl font-bold text-[#5c1313] mb-4 mt-2">提示</h2>
+            <p className="text-[#5c4a3d] text-base mb-8">確定要重置這個計數器嗎？</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-[#5c4a3d] bg-[#E8DEC7] hover:bg-[#DCD1BA] transition-colors"
+              >
+                取消
+              </button>
+              <button
+                onClick={() => {
+                  onReset();
+                  setShowResetConfirm(false);
+                }}
+                className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#8A1A1A] hover:bg-[#5D100F] transition-colors shadow-md"
+              >
+                確定
+              </button>
+            </div>
           </div>
         </div>
       )}
