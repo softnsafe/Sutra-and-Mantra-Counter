@@ -67,6 +67,25 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
     setNames(prev => [...prev, `自定义音频 ${prev.length + 1}`]);
   };
 
+  const handleDeleteAudioSlot = (index: number) => {
+    setAudios(prev => prev.filter((_, i) => i !== index));
+    setNames(prev => prev.filter((_, i) => i !== index));
+
+    setSequence(prev => {
+      let next = prev.filter(step => step.audioIndex !== index);
+      next = next.map(step => {
+        if (step.audioIndex > index) {
+          return { ...step, audioIndex: step.audioIndex - 1 };
+        }
+        return step;
+      });
+      return next;
+    });
+
+    setCurrentStep(0);
+    setCurrentLoop(0);
+  };
+
   const handleFileUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -184,6 +203,14 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
                 onChange={(e) => handleFileUpload(i, e)} 
               />
             </label>
+            <button
+              onClick={() => handleDeleteAudioSlot(i)}
+              disabled={isPlaying}
+              className="shrink-0 p-2 bg-white rounded-full text-[#dcb5b5] hover:text-[#8A1A1A] hover:bg-[#E8DEC7] transition-colors border border-[#DCD1BA] disabled:opacity-50"
+              title="Delete Audio"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         ))}
         <button
