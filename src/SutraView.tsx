@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Minus, RotateCw, ChevronDown, Play, Pause, X, Trash2 } from 'lucide-react';
 import { SUTRAS } from './data';
 import { AudioPlayer } from './AudioPlayer';
+import { AutoMode } from './AutoMode';
 
 interface SavedRecord {
   date: string;
@@ -26,7 +27,7 @@ interface SutraViewProps {
 }
 
 export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetParam, onBack, onChangeSutra }: SutraViewProps) {
-  const [tab, setTab] = useState<'text' | 'audio'>('text');
+  const [tab, setTab] = useState<'text' | 'audio' | 'auto'>('text');
   const [recordModalType, setRecordModalType] = useState<'功課' | 'XFZ' | null>(null);
   const [recordDate, setRecordDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [recordSutra, setRecordSutra] = useState(id);
@@ -148,7 +149,7 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
           </button>
           
           <div className="flex-1 flex justify-center px-2">
-            <div className="flex bg-[#E8DEC7] border border-[#DCD1BA] rounded-xl p-1 shadow-inner h-12 w-full max-w-sm">
+            <div className="flex bg-[#E8DEC7] border border-[#DCD1BA] rounded-xl p-1 shadow-inner h-12 w-full max-w-md">
               <button
                 onClick={() => setTab('text')}
                 className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'text' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
@@ -160,6 +161,12 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
                 className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'audio' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
               >
                 Audio Mode
+              </button>
+              <button
+                onClick={() => setTab('auto')}
+                className={`flex-1 flex items-center justify-center rounded-lg text-sm font-bold transition-all ${tab === 'auto' ? 'bg-[#FDFBF2] text-[#8A1A1A] shadow-sm' : 'text-[#8c7462] hover:text-[#5c4a3d]'}`}
+              >
+                Auto Mode
               </button>
             </div>
           </div>
@@ -310,6 +317,10 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
 
         {tab === 'audio' && (
           <AudioPlayer title={sutra.title} />
+        )}
+
+        {tab === 'auto' && (
+          <AutoMode onIncrementCount={() => onIncrement()} />
         )}
 
         {/* Saved Records Section removed from here */}
