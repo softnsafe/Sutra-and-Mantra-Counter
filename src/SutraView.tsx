@@ -8,6 +8,7 @@ interface SavedRecord {
   type: '功課' | 'XFZ';
   sutra: string;
   count: number;
+  label?: string;
 }
 
 const GONGKE_OPTIONS = ["大悲咒", "心經", "往生咒", "七佛", "功德寶山神咒", "禮佛", "楞嚴咒"];
@@ -30,6 +31,7 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
   const [recordDate, setRecordDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [recordSutra, setRecordSutra] = useState(id);
   const [recordCount, setRecordCount] = useState(count > 0 ? count : 1);
+  const [recordLabel, setRecordLabel] = useState("");
   const [savedRecords, setSavedRecords] = useState<SavedRecord[]>([]);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
@@ -100,25 +102,27 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
     const currentTitle = sutra?.title || "";
     setRecordSutra(options.includes(currentTitle) ? currentTitle : options[0]);
     setRecordCount(count > 0 ? count : 1);
+    setRecordLabel("");
     setRecordModalType(type);
   };
 
   const handleSaveRecord = () => {
     if (!recordModalType) return;
     setSavedRecords(prev => {
-      const existingRecordIndex = prev.findIndex(r => r.date === recordDate && r.type === recordModalType && r.sutra === recordSutra);
+      const currentLabel = recordLabel.trim();
+      const existingRecordIndex = prev.findIndex(r => r.date === recordDate && r.type === recordModalType && r.sutra === recordSutra && (r.label || "") === currentLabel);
       if (existingRecordIndex >= 0) {
         const newRecords = [...prev];
         newRecords[existingRecordIndex] = { ...newRecords[existingRecordIndex], count: newRecords[existingRecordIndex].count + recordCount };
         return newRecords;
       }
-      return [...prev, { date: recordDate, type: recordModalType, sutra: recordSutra, count: recordCount }];
+      return [...prev, { date: recordDate, type: recordModalType, sutra: recordSutra, count: recordCount, label: currentLabel }];
     });
     // Do not close modal automatically so user can see the records at the bottom
   };
 
-  const handleDeleteRecord = (date: string, type: '功課' | 'XFZ', sutra: string) => {
-    setSavedRecords(prev => prev.filter(r => !(r.date === date && r.type === type && r.sutra === sutra)));
+  const handleDeleteRecord = (date: string, type: '功課' | 'XFZ', sutra: string, label: string = "") => {
+    setSavedRecords(prev => prev.filter(r => !(r.date === date && r.type === type && r.sutra === sutra && (r.label || "") === label)));
   };
 
   if (!sutra) {
@@ -355,6 +359,17 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
               </div>
 
               <div>
+                 <label className="block text-sm text-[#7a6659] mb-1.5">Label (標籤)</label>
+                 <input 
+                    type="text" 
+                    value={recordLabel}
+                    onChange={(e) => setRecordLabel(e.target.value)}
+                    placeholder="例如: 1"
+                    className="w-full bg-transparent border border-[#dcb5b5] rounded-xl px-4 py-3 text-[#4a3f35] font-medium outline-none focus:border-[#8A1A1A] focus:ring-1 focus:ring-[#8A1A1A] transition-colors"
+                  />
+              </div>
+
+              <div>
                  <label className="block text-sm text-[#7a6659] mb-1.5">遍數</label>
                  <input 
                     type="number" 
@@ -382,14 +397,17 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
                     <div key={i} className="flex justify-between items-center bg-[#FAF6EC] rounded-xl p-3 shadow-sm border border-[#E8DEC7]">
                       <div>
                         <div className="text-[11px] text-[#8c7462] font-medium mb-0.5">{r.date}</div>
-                        <div className="font-bold text-[#4a3f35] text-sm">{r.sutra}</div>
+                        <div className="font-bold text-[#4a3f35] text-sm">
+                          {r.sutra}
+                          {r.label ? <span className="ml-2 text-xs bg-[#E8DEC7] px-1.5 py-0.5 rounded text-[#5c4a3d]">Label: {r.label}</span> : null}
+                        </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-lg font-black text-[#8A1A1A]">
                           {r.count}
                         </div>
                         <button
-                          onClick={() => handleDeleteRecord(r.date, r.type, r.sutra)}
+                          onClick={() => handleDeleteRecord(r.date, r.type, r.sutra, r.label)}
                           className="p-1.5 text-[#dcb5b5] hover:text-[#8A1A1A] transition-colors rounded-full hover:bg-[#E8DEC7]"
                           title="刪除"
                         >
