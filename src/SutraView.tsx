@@ -259,14 +259,19 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
                 }}
               >
                 {sutra.images && sutra.images.length > 0 ? (
-                  <div className="flex flex-col w-full -space-y-[30%] pt-[5%] pb-[10%]">
+                  <div className="flex flex-col w-full pt-[5%] pb-[10%]">
                     {sutra.images.map((imgSrc, index) => (
                       <img 
                         key={index} 
                         src={imgSrc || undefined} 
                         alt={`${sutra.title} page ${index + 1}`} 
                         className="w-full h-auto block filter contrast-[1.15] sepia-[0.3] mix-blend-multiply opacity-90 relative" 
-                        style={{ zIndex: sutra.images.length - index }}
+                        style={{ 
+                          zIndex: sutra.images.length - index,
+                          marginTop: index > 0 
+                            ? (['sutra2', 'sutra3', 'sutra6'].includes(sutra.id) ? '-25%' : '-30%') 
+                            : '0'
+                        }}
                         referrerPolicy="no-referrer"
                       />
                     ))}
