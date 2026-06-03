@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Minus, RotateCw, ChevronDown, Play, Pause, X, Trash2 } from 'lucide-react';
+import { ArrowLeft, Minus, RotateCw, ChevronDown, Play, Pause, X, Trash2, Clock } from 'lucide-react';
 import { SUTRAS } from './data';
 import { AudioPlayer } from './AudioPlayer';
 import { AutoMode } from './AutoMode';
+import { usePlayHistory } from './usePlayHistory';
 
 interface SavedRecord {
   date: string;
@@ -38,6 +39,8 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
   const [scrollSpeed, setScrollSpeed] = useState<number>(1.5);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  const { history: playHistory, addRecord: addPlayRecord, deleteRecord: deletePlayRecord, clearHistory: clearPlayHistory } = usePlayHistory();
   
   // Calculate daily count roughly (since we don't have historical daily context we use current total count here or mock it)
   // For the example we just show count.
@@ -321,11 +324,59 @@ export function SutraView({ id, count, onIncrement, onDecrement, onReset, onSetP
         )}
 
         {tab === 'audio' && (
-          <AudioPlayer title={sutra.title} />
+          <AudioPlayer 
+            title={sutra.title} 
+            onRecordHistory={(title, count) => addPlayRecord(title, count, 'Audio')}
+          />
         )}
 
         {tab === 'auto' && (
-          <AutoMode onIncrementCount={() => onIncrement()} />
+          <AutoMode 
+            onIncrementCount={() => onIncrement()} 
+            onRecordHistory={(title, count) => addPlayRecord(title, count, 'Auto')}
+          />
+        )}
+
+        {/* Play History Section */}
+        {(tab === 'audio' || tab === 'auto') && playHistory.length > 0 && (
+          <div className="mt-8 border-t border-[#E8DEC7] pt-6 px-4 pb-8 max-w-md mx-auto w-full">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-[#6a1515] flex items-center gap-2">
+                <Clock className="w-5 h-5 text-[#9A8462]" /> 
+                Recent Play History
+              </h3>
+              <button 
+                onClick={clearPlayHistory}
+                className="text-xs text-[#8A1A1A] hover:underline font-bold bg-[#FAF6EC] px-2 py-1 rounded border border-[#E8DEC7]"
+              >
+                Clear
+              </button>
+            </div>
+            <div className="space-y-3">
+              {playHistory.map((r) => (
+                <div key={r.id} className="flex justify-between items-center bg-[#FAF6EC] rounded-xl p-4 shadow-sm border border-[#E8DEC7]">
+                  <div>
+                    <div className="text-[11px] text-[#8c7462] font-medium mb-1">{r.date} · {r.mode}</div>
+                    <div className="font-bold text-[#4a3f35] text-sm">
+                      {r.title}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-lg font-black text-[#8A1A1A]">
+                      {r.count} <span className="text-xs font-medium text-[#8c7462]">遍</span>
+                    </div>
+                    <button 
+                      onClick={() => deletePlayRecord(r.id)}
+                      className="p-1.5 text-[#dcb5b5] hover:text-[#8A1A1A] transition-colors rounded-full hover:bg-[#E8DEC7]"
+                      title="Delete Record"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* Saved Records Section removed from here */}

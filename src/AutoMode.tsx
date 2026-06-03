@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipForward, Upload, Music, Trash2, Plus } from 'lucide-react';
+import { Play, Pause, SkipForward, Upload, Music, Trash2, Plus, Square } from 'lucide-react';
 
 interface AutoModeProps {
   onIncrementCount: (count: number) => void;
+  onRecordHistory?: (title: string, count: number) => void;
 }
 
 const getInitialSequence = () => [
@@ -15,7 +16,7 @@ const getInitialSequence = () => [
   { audioIndex: 0, times: 15, speed: 1.5 },
 ];
 
-export function AutoMode({ onIncrementCount }: AutoModeProps) {
+export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
   const [audios, setAudios] = useState<(string | null)[]>([null, null, null, null]);
   const [names, setNames] = useState<string[]>(['大悲咒', '心经', '往生咒', '七佛灭罪真言']);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -145,6 +146,11 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
         audioRef.current.play().catch(console.error);
       }
     } else {
+      // Record complete step
+      if (audios[step.audioIndex] && onRecordHistory) {
+         onRecordHistory(names[step.audioIndex], step.times);
+      }
+
       // Move to next step
       if (currentStep + 1 < sequence.length) {
         setCurrentStep(s => s + 1);
@@ -264,7 +270,7 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
                     className="w-16 bg-white border border-[#DCD1BA] rounded-lg p-1 text-center text-sm font-bold text-[#6a1515] focus:outline-none focus:border-[#8A1A1A] transition-colors disabled:opacity-50"
                     title="Loop Count"
                   />
-                  <span className="text-xs text-[#8c7462] font-medium pr-1">次</span>
+                  <span className="text-xs text-[#8c7462] font-medium pr-1">遍</span>
                 </div>
                 <button
                   onClick={() => handleDeleteStep(index)}
@@ -307,7 +313,7 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
           </div>
         </div>
 
-        <div className="flex items-center justify-center">
+        <div className="flex items-center justify-center gap-6">
           <button
             onClick={togglePlay}
             className="w-20 h-20 flex items-center justify-center rounded-full bg-[#8A1A1A] hover:bg-[#6a1515] text-white shadow-xl hover:scale-105 active:scale-95 transition-all"
@@ -317,6 +323,27 @@ export function AutoMode({ onIncrementCount }: AutoModeProps) {
             ) : (
               <Play className="w-8 h-8 fill-current ml-2" />
             )}
+          </button>
+
+          <button
+            onClick={() => {
+              if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+              }
+              setIsPlaying(false);
+              
+              const step = sequence[currentStep];
+              if (currentLoop > 0 && audios[step.audioIndex] && onRecordHistory) {
+                onRecordHistory(names[step.audioIndex], currentLoop);
+              }
+              setCurrentStep(0);
+              setCurrentLoop(0);
+            }}
+            className="w-14 h-14 flex items-center justify-center rounded-full bg-white border border-[#DCD1BA] text-[#6a1515] shadow-md hover:bg-[#E8DEC7] active:scale-95 transition-all"
+            title="Stop & Reset"
+          >
+            <Square className="w-5 h-5 fill-current" />
           </button>
         </div>
       </div>

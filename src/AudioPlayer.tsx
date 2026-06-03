@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Music, FileAudio } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Music, FileAudio, Square } from 'lucide-react';
 
 interface AudioPlayerProps {
   title: string;
+  onRecordHistory?: (title: string, count: number) => void;
 }
 
-export function AudioPlayer({ title }: AudioPlayerProps) {
+export function AudioPlayer({ title, onRecordHistory }: AudioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -55,7 +56,11 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
       }
     } else {
       setIsPlaying(false);
+      const playedCount = loopCount + 1;
       setLoopCount(0);
+      if (onRecordHistory) {
+        onRecordHistory(customTitle || title, playedCount);
+      }
     }
   };
 
@@ -132,7 +137,7 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
         </div>
         
         {/* Controls */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center justify-center gap-8 w-full">
           <button className="text-[#6a1515] opacity-70 hover:opacity-100 transition-opacity disabled:opacity-30" disabled={!audioUrl}>
             <SkipBack className="w-6 h-6 fill-current" />
           </button>
@@ -143,6 +148,25 @@ export function AudioPlayer({ title }: AudioPlayerProps) {
             className="w-16 h-16 rounded-full bg-[#8A1A1A] flex items-center justify-center text-white shadow-lg shadow-red-900/20 active:scale-95 transition-transform disabled:opacity-50 disabled:bg-[#9A8462]"
           >
             {isPlaying ? <Pause className="w-8 h-8 fill-current" /> : <Play className="w-8 h-8 fill-current ml-1" />}
+          </button>
+          
+          <button 
+            onClick={() => {
+              if (audioRef.current) {
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+              }
+              setIsPlaying(false);
+              if (loopCount > 0 && onRecordHistory) {
+                onRecordHistory(customTitle || title, loopCount);
+              }
+              setLoopCount(0);
+            }}
+            className="text-[#6a1515] opacity-70 hover:opacity-100 transition-opacity disabled:opacity-30" 
+            disabled={!audioUrl}
+            title="Stop & Save Record"
+          >
+            <Square className="w-6 h-6 fill-current" />
           </button>
           
           <button className="text-[#6a1515] opacity-70 hover:opacity-100 transition-opacity disabled:opacity-30" disabled={!audioUrl}>
