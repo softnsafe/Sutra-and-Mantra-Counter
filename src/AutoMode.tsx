@@ -257,7 +257,7 @@ export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
                     className="text-sm bg-white border border-[#DCD1BA] rounded-lg px-2 py-1 text-[#4a3f35] font-bold focus:outline-none focus:border-[#8A1A1A] disabled:opacity-50 min-w-[70px]"
                     title="Playback Speed"
                   >
-                    {[0.5, 0.75, 1, 1.25, 1.5, 1.75, 2].map(speed => (
+                    {[0.5, 0.75, 1, 1.25, 1.4, 1.5, 1.75, 2].map(speed => (
                       <option key={speed} value={speed}>{speed}x</option>
                     ))}
                   </select>

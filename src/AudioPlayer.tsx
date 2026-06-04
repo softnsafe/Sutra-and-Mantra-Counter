@@ -190,6 +190,7 @@ export function AudioPlayer({ title, onRecordHistory }: AudioPlayerProps) {
             >
               <option value={1.0}>1.0x</option>
               <option value={1.2}>1.2x</option>
+              <option value={1.4}>1.4x</option>
               <option value={1.5}>1.5x</option>
               <option value={2.0}>2.0x</option>
             </select>
