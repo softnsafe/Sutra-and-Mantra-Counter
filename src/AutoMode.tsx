@@ -98,7 +98,7 @@ export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
       });
       setNames(prev => {
         const next = [...prev];
-        next[index] = file.name;
+        next[index] = file.name.replace(/\.[^/.]+$/, "");
         return next;
       });
     }
