@@ -22,6 +22,8 @@ export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [currentLoop, setCurrentLoop] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -109,6 +111,38 @@ export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
       audioRef.current.playbackRate = sequence[currentStep].speed || 1.5;
     }
   }, [currentStep, isPlaying, sequence]);
+
+  useEffect(() => {
+    setCurrentTime(0);
+    setDuration(0);
+  }, [currentStep, currentLoop]);
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    setCurrentTime(time);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return '00:00';
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const playStep = () => {
     if (currentStep >= sequence.length) {
@@ -313,6 +347,24 @@ export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
           </div>
         </div>
 
+        {/* Playback Progress Bar */}
+        {sequence[currentStep] && audios[sequence[currentStep].audioIndex] && (
+          <div className="w-full px-4 mb-6">
+            <input
+              type="range"
+              min="0"
+              max={duration || 100}
+              value={currentTime}
+              onChange={handleSeek}
+              className="w-full h-2 bg-[#E8DEC7] rounded-lg appearance-none cursor-pointer accent-[#6a1515]"
+            />
+            <div className="flex justify-between text-xs font-mono text-[#9A8462] mt-2 font-medium">
+              <span>{formatTime(currentTime)}</span>
+              <span>{formatTime(duration)}</span>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-center gap-6">
           <button
             onClick={togglePlay}
@@ -351,6 +403,8 @@ export function AutoMode({ onIncrementCount, onRecordHistory }: AutoModeProps) {
       <audio 
         ref={audioRef} 
         onEnded={handleEnded}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
         onCanPlay={(e) => {
           if (sequence[currentStep]) {
             (e.target as HTMLAudioElement).playbackRate = sequence[currentStep].speed || 1.5;
